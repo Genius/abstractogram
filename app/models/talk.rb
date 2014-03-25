@@ -5,6 +5,8 @@ class Talk < ActiveRecord::Base
   # TO DO: 2006
   ALL_YEARS = (2007..2014).to_a
   
+  # scraping code
+  
   class << self
     def destroy_all_talks(year = nil)
       if year.present?
@@ -128,6 +130,82 @@ class Talk < ActiveRecord::Base
     
     ALL_YEARS.each do |year|
       handle_asynchronously :"create_railsconf_#{year}_talks"
+    end
+  end
+  
+  # generate ngrams code
+  
+  def self.redis
+    $redis
+  end
+  
+  MAX_NGRAM_SIZE = 3
+  TOTAL_KEY = "abstractogram:totals"
+  ALL_YEARS_KEY = "abstractogram:all_years"
+  
+  def self.sorted_set_key(year, n)
+    ['abstractogram', year, n].join(":")
+  end
+  
+  def ngrams(n)
+    words = abstract.squish.gsub(/[^[[:word:]]\s]/, '').to_s.downcase.split(" ")
+    
+    Array.wrap(n).each.with_object({}) do |this_n, hsh|
+      hsh[this_n] = (0..(words.size - this_n)).inject([]) do |ary, i|
+        ary << words[i, this_n]
+      end
+    end
+  end
+  
+  class << self
+    def generate_all_ngram_data
+      ALL_YEARS.each { |y| generate_ngram_data_by_year(y) }
+    end
+    
+    def generate_ngram_data_by_year(year, opts = {})
+      n = Array.wrap(opts[:n] || (1..MAX_NGRAM_SIZE).to_a)
+      
+      keys = n.map{ |num| sorted_set_key(year, num) }
+      redis.del(*keys)
+      keys.each{ |k| redis.zrem(TOTAL_KEY, k) }
+      redis.zrem(ALL_YEARS_KEY, year)
+      
+      Talk.where(:year => year).find_each do |talk|
+        talk.ngrams(n).each do |num, ngrams_ary|
+          set_key = sorted_set_key(year, num)
+          
+          redis.zincrby(TOTAL_KEY, ngrams_ary.size, set_key)
+          
+          ngrams_ary.each do |val|
+            redis.zincrby(set_key, 1, val.join(" "))
+          end
+        end
+      end
+      
+      redis.zadd(ALL_YEARS_KEY, year, year)
+    end
+    handle_asynchronously :generate_ngram_data_by_year
+  end
+  
+  # query ngrams code
+  
+  class << self
+    def ngram_query(term)
+      term.to_s.squish!.downcase!
+      
+      n = term.split(" ").size
+      years = ALL_YEARS
+      counts_hsh = {}
+      
+      redis.pipelined do
+        years.each do |year|
+          key = sorted_set_key(year, n)
+          
+          counts_hsh[year] = redis.zscore(key, term)
+        end
+      end
+      
+      counts_hsh.sort_by { |k,v| k }.map { |ary| ary[1].value.to_i }
     end
   end
 end
