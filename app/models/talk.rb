@@ -151,9 +151,7 @@ class Talk < ActiveRecord::Base
     words = abstract.squish.gsub(/[^[[:word:]]\s]/, '').to_s.downcase.split(" ")
     
     Array.wrap(n).each.with_object({}) do |this_n, hsh|
-      hsh[this_n] = (0..(words.size - this_n)).inject([]) do |ary, i|
-        ary << words[i, this_n]
-      end
+      hsh[this_n] = words.each_cons(this_n).to_a
     end
   end
   
