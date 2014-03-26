@@ -19,6 +19,9 @@ $(function() {
           title: { text: "Word Count" },
           allowDecimals: false
         },
+        xAxis: {
+          allowDecimals: false
+        },
         legend: { borderWidth: 0 },
         plotOptions: {
           series: {

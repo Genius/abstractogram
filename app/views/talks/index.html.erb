@@ -1,4 +1,4 @@
-<div class="col-xs-12 col-sm-10 col-md-7">
+<div class="col-xs-12 col-md-8">
   <div class="page-header">
     <h1>
       <%= link_to name_of_site, root_path %>
@@ -10,7 +10,7 @@
     <div class="input-group">
       <%= search_field_tag :q, params[:q], :maxlength => 10_000, :tabindex => 1, :class => "form-control" %>
       <div class="input-group-btn">
-        <%= submit_tag "Search RailsConf Abstracts!", :id => "query-submit", :tabindex => 2, :class => "form-control btn btn-info" %>
+        <%= submit_tag submit_text, :id => "query-submit", :tabindex => 2, :class => "form-control btn btn-info" %>
       </div>
     </div>
   <% end %>
