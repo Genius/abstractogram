@@ -147,8 +147,10 @@ class Talk < ActiveRecord::Base
     ['abstractogram', year, n].join(":")
   end
   
+  WORDS_REGEX = %r{[^[[:word:]]\s]}
+  
   def ngrams(n)
-    words = abstract.squish.gsub(/[^[[:word:]]\s]/, '').to_s.downcase.split(" ")
+    words = abstract.squish.gsub(WORDS_REGEX, '').to_s.downcase.split(" ")
     
     Array.wrap(n).each.with_object({}) do |this_n, hsh|
       hsh[this_n] = words.each_cons(this_n).to_a
@@ -188,7 +190,13 @@ class Talk < ActiveRecord::Base
   # query ngrams code
   
   class << self
-    def ngram_query(term)
+    def ngram_query(terms)
+      terms.each.with_object({}) do |term, hsh|
+        hsh[term] = inner_query(term.downcase)
+      end
+    end
+    
+    def inner_query(term)
       term.to_s.squish!.downcase!
       
       n = term.split(" ").size
