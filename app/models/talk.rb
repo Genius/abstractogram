@@ -191,8 +191,8 @@ class Talk < ActiveRecord::Base
   
   class << self
     def ngram_query(terms)
-      terms.each.with_object({}) do |term, hsh|
-        hsh[term] = inner_query(term.downcase)
+      terms.map do |term|
+        {:name => term, :data => inner_query(term)}
       end
     end
     
@@ -211,7 +211,7 @@ class Talk < ActiveRecord::Base
         end
       end
       
-      counts_hsh.sort_by { |k,v| k }.map { |ary| ary[1].value.to_i }
+      counts_hsh.sort_by { |k,v| k }.map { |ary| [ary[0], ary[1].value.to_i] }
     end
   end
 end

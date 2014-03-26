@@ -1,1 +1,10 @@
 @import "bootstrap";
+
+.page-header {
+  a:hover { text-decoration: none; }
+}
+
+#graph-container {
+  height: 400px;
+  margin-top: 25px;
+}

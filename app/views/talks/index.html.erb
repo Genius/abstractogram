@@ -1,3 +1,20 @@
-<h1>
-  <%= link_to name_of_site, root_path %>
-</h1>
+<div class="col-xs-12 col-sm-10 col-md-7">
+  <div class="page-header">
+    <h1>
+      <%= link_to name_of_site, root_path %>
+    </h1>
+    <p>See the code <%= link_to "on GitHub", github_url, :target => :_blank %></p>
+  </div>
+  
+  <%= form_tag query_path, :method => :get, :remote => true, :id => 'query-form', :class => 'form-inline' do %>
+    <div class="input-group">
+      <%= search_field_tag :q, params[:q], :maxlength => 10_000, :tabindex => 1, :class => "form-control" %>
+      <div class="input-group-btn">
+        <%= submit_tag "Search RailsConf Abstracts!", :id => "query-submit", :tabindex => 2, :class => "form-control btn btn-info" %>
+      </div>
+    </div>
+  <% end %>
+  
+  <div id="graph-container">
+  </div>
+</div>

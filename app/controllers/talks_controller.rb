@@ -1,6 +1,7 @@
 class TalksController < ApplicationController
   def query
-    render :json => Talk.ngram_query(get_terms_from_params)
+    terms = get_terms_from_params
+    render :json => {:title => terms.join(", "), :series => Talk.ngram_query(terms)}
   end
   
   private
