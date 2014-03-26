@@ -68,6 +68,7 @@ GEM
     minitest (4.7.5)
     multi_json (1.9.2)
     netrc (0.7.7)
+    newrelic_rpm (3.7.3.204)
     nokogiri (1.6.1)
       mini_portile (~> 0.5.0)
     pg (0.17.1)
@@ -145,6 +146,7 @@ DEPENDENCIES
   heroku (= 3.6.0)
   jbuilder (= 1.5.3)
   jquery-rails (= 3.1.0)
+  newrelic_rpm
   nokogiri (= 1.6.1)
   pg (= 0.17.1)
   rack-timeout (= 0.0.4)
