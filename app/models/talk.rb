@@ -143,11 +143,7 @@ class Talk < ActiveRecord::Base
   WORDS_REGEX = %r{[^[[:word:]]\s]}
   
   def ngrams(n)
-    words = abstract.squish.gsub(WORDS_REGEX, '').to_s.downcase.split(" ")
-    
-    Array.wrap(n).each.with_object({}) do |this_n, hsh|
-      hsh[this_n] = words.each_cons(this_n).to_a
-    end
+    abstract.fingerprint.gsub(WORDS_REGEX, '').split(" ").each_cons(n).to_a
   end
   
   class << self
@@ -156,22 +152,24 @@ class Talk < ActiveRecord::Base
     end
     
     def generate_ngram_data_by_year(year, opts = {})
-      n = Array.wrap(opts[:n] || (1..MAX_NGRAM_SIZE).to_a)
+      values_of_n = Array.wrap(opts[:n] || (1..MAX_NGRAM_SIZE).to_a)
       
-      keys = n.map{ |num| sorted_set_key(year, num) }
+      keys = values_of_n.map{ |num| sorted_set_key(year, num) }
       redis.del(*keys)
       keys.each{ |k| redis.zrem(TOTAL_KEY, k) }
       redis.zrem(ALL_YEARS_KEY, year)
       
       Talk.where(:year => year).find_each do |talk|
-        talk.ngrams(n).each do |num, ngrams_ary|
+        values_of_n.each do |num|
           set_key = sorted_set_key(year, num)
           
-          redis.zincrby(TOTAL_KEY, ngrams_ary.size, set_key)
+          ngrams_ary = talk.ngrams(num)
           
-          ngrams_ary.each do |val|
-            redis.zincrby(set_key, 1, val.join(" "))
+          ngrams_ary.each do |ngram|
+            redis.zincrby(set_key, 1, ngram.join(" "))
           end
+          
+          redis.zincrby(TOTAL_KEY, ngrams_ary.size, set_key)
         end
       end
       
