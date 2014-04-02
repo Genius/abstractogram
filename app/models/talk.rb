@@ -187,8 +187,8 @@ class Talk < ActiveRecord::Base
       end
     end
     
-    def inner_query(term)
-      term.to_s.squish!.downcase!
+    def inner_query(raw_term)
+      term = raw_term.fingerprint
       
       n = term.split(" ").size
       years = ALL_YEARS
