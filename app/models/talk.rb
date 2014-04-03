@@ -2,12 +2,15 @@ class Talk < ActiveRecord::Base
   validates_presence_of :year, :title, :abstract
   validates_uniqueness_of :title, :scope => :year
   
-  # TO DO: 2006
   ALL_YEARS = (2007..2014).to_a
   
   # scraping code
   
   class << self
+    def mine
+      find_by_year_and_speaker(2014, "Todd Schneider")
+    end
+    
     def destroy_all_talks(year = nil)
       if year.present?
         where(:year => year)
@@ -127,14 +130,12 @@ class Talk < ActiveRecord::Base
   TOTAL_KEY = "abstractogram:totals"
   ALL_YEARS_KEY = "abstractogram:all_years"
   
-  def self.sorted_set_key(year, n)
-    ['abstractogram', year, n].join(":")
+  def self.sorted_set_key(year)
+    ['abstractogram', year].join(":")
   end
   
-  WORDS_REGEX = %r{[^[[:word:]]\s]}
-  
   def ngrams(n)
-    abstract.fingerprint.gsub(WORDS_REGEX, '').split(" ").each_cons(n).to_a
+    # given a value of n, calculate n-grams from a talk's abstract
   end
   
   class << self
@@ -151,14 +152,14 @@ class Talk < ActiveRecord::Base
   # query ngrams code
   
   class << self
+    def query(raw_term)
+      # given a search term, return the number of times it appeared by year
+    end
+    
     def ngram_query(terms)
       terms.map do |term|
         {:name => term, :data => query(term)}
       end
-    end
-    
-    def query(raw_term)
-      # given a search term, return the number of times it appeared by year
     end
   end
 end
