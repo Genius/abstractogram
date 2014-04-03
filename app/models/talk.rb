@@ -183,11 +183,11 @@ class Talk < ActiveRecord::Base
   class << self
     def ngram_query(terms)
       terms.map do |term|
-        {:name => term, :data => inner_query(term)}
+        {:name => term, :data => query(term)}
       end
     end
     
-    def inner_query(raw_term)
+    def query(raw_term)
       term = raw_term.fingerprint
       
       n = term.split(" ").size
