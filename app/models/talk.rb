@@ -31,6 +31,7 @@ class Talk < ActiveRecord::Base
     
     def create_railsconf_2014_talks
       # 2014 RailsConf program: http://railsconf.com/program
+      # local copy: /Users/me/railsconf2014.html
     end
     
     def create_railsconf_2013_talks
