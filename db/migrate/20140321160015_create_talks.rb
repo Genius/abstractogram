@@ -1,8 +1,5 @@
 class CreateTalks < ActiveRecord::Migration
   def change
-    # improvements we could make:
-    # speakers as an hstore
-    # separate model for conferences and add a conference_id
     create_table :talks do |t|
       t.integer :year
       t.string  :title
@@ -10,5 +7,9 @@ class CreateTalks < ActiveRecord::Migration
       t.text    :abstract
       t.text    :bio
     end
+    
+    # improvements we could make:
+    # add conference_id, have a separate model for conferences
+    # better handling of talks with multiple speakers: maybe a speaker model and a join table
   end
 end
