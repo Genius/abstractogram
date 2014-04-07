@@ -1,0 +1,3 @@
+1. Gather the data
+2. Do the n-gram calculation and store the results
+3. Create a nice front-end interface that lets us investigate the results

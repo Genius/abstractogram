@@ -1,0 +1,17 @@
+Example sentence: "This talk is boring"
+
+1-grams:
+  this
+  talk
+  is
+  boring
+  
+2-grams:
+  this talk
+  talk is
+  is boring
+  
+3-grams:
+  this talk is
+  talk is boring
+  
