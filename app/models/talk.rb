@@ -131,10 +131,6 @@ class Talk < ActiveRecord::Base
   TOTAL_KEY = "abstractogram:totals"
   ALL_YEARS_KEY = "abstractogram:all_years"
   
-  def self.sorted_set_key(year)
-    ['abstractogram', year].join(":")
-  end
-  
   def ngrams(n)
     # given a value of n, calculate n-grams from a talk's abstract
   end

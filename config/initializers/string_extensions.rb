@@ -1,5 +1,5 @@
 class String
-  def fingerprint
+  def normalize_for_ngrams
     downcase.squish.remove_punctuation
   end
   
