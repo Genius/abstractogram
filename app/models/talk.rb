@@ -32,6 +32,17 @@ class Talk < ActiveRecord::Base
     def create_railsconf_2014_talks
       # 2014 RailsConf program: http://railsconf.com/program
       # local copy: /Users/me/railsconf2014.html
+      doc = fetch_and_parse("http://railsconf.com/program")
+      
+      doc.css(".session").each do |elm|
+        Talk.create do |t|
+          t.year = 2014
+          t.title = elm.css("header h1").inner_text
+          t.speaker = elm.css("header h2").inner_text
+          t.abstract = elm.css("> p").inner_text
+          t.bio = elm.css(".bio").inner_text
+        end
+      end
     end
     
     def create_railsconf_2013_talks
@@ -133,6 +144,7 @@ class Talk < ActiveRecord::Base
   
   def ngrams(n)
     # given a value of n, calculate n-grams from a talk's abstract
+    abstract.normalize_for_ngrams.split(" ").each_cons(n).map { |ary| ary.join(" ") }
   end
   
   class << self
@@ -142,6 +154,17 @@ class Talk < ActiveRecord::Base
     
     def generate_ngram_data_by_year(year)
       # iterate through all talks from a given year, calculate ngram counts and add to appropriate redis sorted set
+      redis.del(year)
+      
+      values_of_n = [1,2,3]
+      
+      Talk.where(:year => year).find_each do |talk|
+        values_of_n.each do |n|
+          talk.ngrams(n).each do |ngram|
+            redis.zincrby(year, 1, ngram)
+          end
+        end
+      end
     end
     handle_asynchronously :generate_ngram_data_by_year
   end
@@ -151,11 +174,16 @@ class Talk < ActiveRecord::Base
   class << self
     def query(raw_term)
       # given a search term, return the number of times it appeared by year
+      term = raw_term.normalize_for_ngrams
+      
+      ALL_YEARS.each.with_object({}) do |year, hsh|
+        hsh[year] = redis.zscore(year, term).to_i
+      end
     end
     
     def ngram_query(terms)
       terms.map do |term|
-        {:name => term, :data => query(term)}
+        {:name => term, :data => query(term).to_a}
       end
     end
   end
