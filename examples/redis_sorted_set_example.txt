@@ -1,5 +1,3 @@
-sorted set key = "abstractogram:2014"
-
 each pair of (member => score) looks like:
 
   ruby => 45,
@@ -8,5 +6,7 @@ each pair of (member => score) looks like:
 
 then if someone searches for "ember", we can get the number of times ember appeared in 2014 with redis's zscore command:
 
-redis.zscore("abstractogram:2014", "ember")
+redis.zscore(2014, "ember")
 # => 3
+
+the sorted set key is the year, in this case 2014
