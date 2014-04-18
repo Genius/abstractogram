@@ -155,7 +155,7 @@ class Talk < ActiveRecord::Base
     
     def ngram_query(terms)
       terms.map do |term|
-        {:name => term, :data => query(term)}
+        {:name => term, :data => query(term).to_a}
       end
     end
   end
