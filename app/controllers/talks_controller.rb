@@ -7,6 +7,6 @@ class TalksController < ApplicationController
   private
   
   def get_terms_from_params
-    params[:q].to_s.split(",").map{ |t| t.squish.gsub(Talk::WORDS_REGEX, '') }.select(&:present?).uniq
+    params[:q].to_s.split(",").map{ |t| t.squish.remove_punctuation }.select(&:present?).uniq
   end
 end

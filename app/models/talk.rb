@@ -140,10 +140,8 @@ class Talk < ActiveRecord::Base
     ['abstractogram', year, n].join(":")
   end
   
-  WORDS_REGEX = %r{[^[[:word:]]\s]}
-  
   def ngrams(n)
-    abstract.fingerprint.gsub(WORDS_REGEX, '').split(" ").each_cons(n).to_a
+    abstract.normalize_for_ngrams.split.each_cons(n).map { |ary| ary.join(" ") }
   end
   
   class << self
@@ -159,14 +157,14 @@ class Talk < ActiveRecord::Base
       keys.each{ |k| redis.zrem(TOTAL_KEY, k) }
       redis.zrem(ALL_YEARS_KEY, year)
       
-      Talk.where(:year => year).find_each do |talk|
+      where(:year => year).find_each do |talk|
         values_of_n.each do |num|
           set_key = sorted_set_key(year, num)
           
           ngrams_ary = talk.ngrams(num)
           
           ngrams_ary.each do |ngram|
-            redis.zincrby(set_key, 1, ngram.join(" "))
+            redis.zincrby(set_key, 1, ngram)
           end
           
           redis.zincrby(TOTAL_KEY, ngrams_ary.size, set_key)
@@ -188,9 +186,9 @@ class Talk < ActiveRecord::Base
     end
     
     def query(raw_term)
-      term = raw_term.fingerprint
+      term = raw_term.normalize_for_ngrams
       
-      n = term.split(" ").size
+      n = term.split.size
       years = ALL_YEARS
       counts_hsh = {}
       
