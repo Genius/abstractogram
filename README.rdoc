@@ -1,28 +1,7 @@
 == README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+See live version at http://abstractogram.herokuapp.com
 
-Things you may want to cover:
+Built as a demo app for RailsConf 2014, abstractogram scrapes talk data (title, abstract, speaker, bio) of RailsConf talks from 2007-2014, then allows you to search words and phrases to see how many times they appeared in talk abstracts by year
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
-
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+Questions? todd@rapgenius.com
